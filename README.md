@@ -3,7 +3,7 @@
 
 ## Things to do
 - [ ] inference.py 개선
-- [ ] prediction postprocess (ex. [0 2 3 2 ... ] -> 저랑 코딩하실래요?)
+- [x] prediction postprocess (ex. [0 2 3 2 ... ] -> 저랑 코딩하실래요?)
 - [ ] slot_type_ids 적용하기
 - [ ] metrics 적용
 - [ ] 모델 성능 개선
