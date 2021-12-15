@@ -9,7 +9,9 @@
 - [ ] 모델 성능 개선
 - [ ] 코드 개선, 추상화 작업
 - [ ] NER task 코드 공부하기
-- [ ] KoSpacing 비교 코드 작성
+- [x] KoSpacing 비교 코드 작성
+- [ ] requirements.txt
+- [ ] max_len 문제 해결
 
 ## 바뀐 것 설명
 ### prediction postprocess
@@ -23,3 +25,6 @@ text_prediction = self.post_process_function(
         )
 self.args.output_dir을 지우면 예측값 저장 X
 ```
+
+### KoSpacing 비교 코드
+- inference.py 이후 만들어진 ./results/predictions.json 파일을 이용하여 비교.

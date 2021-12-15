@@ -3,20 +3,18 @@ from transformers import BertTokenizer, BertForTokenClassification, TrainingArgu
 
 from typing import Tuple, Optional, List
 
-from datasets import load_metric
 import numpy as np
-
-from torch.utils.data import DataLoader
-from sklearn.metrics import accuracy_score
-
-from preprocessor import Preprocessor
-from dataset import CustomDataset
-from trainer_qa import SpacingTrainer
 
 from tqdm import tqdm
 
 import os
 import json
+
+
+from preprocessor import Preprocessor
+from dataset import CustomDataset
+from trainer_qa import SpacingTrainer
+from utils_qa import compute_metrics
 
 def post_process_function(
         examples,
@@ -36,6 +34,7 @@ def post_process_function(
         
         pred_text = []
         for idx, text in enumerate(original):
+            if idx>=len(pred): continue
             if pred[idx]==2:
                 pred_text += ' ' + text
             else:
@@ -48,7 +47,18 @@ def post_process_function(
     if output_dir is not None:
         assert os.path.isdir(output_dir), f"{output_dir} is not a directory."
 
-        text_dict = {i:(text_original[i], text_predictions[i]) for i in range(len(text_predictions))}
+        if examples.ground_truths:
+            text_dict = {i:( 
+                            " ".join(examples.sentences[i]), 
+                            " ".join(examples.ground_truths[i]),
+                            text_predictions[i]
+                        ) for i in range(len(text_predictions))}
+        else: 
+            text_dict = {i:(
+                            " ".join(examples.sentences[i]), 
+                            text_predictions[i]
+                        ) for i in range(len(text_predictions))}
+
 
         prediction_file = os.path.join(
             output_dir,
@@ -63,15 +73,15 @@ def post_process_function(
     return text_predictions
 
 
-def compute_metrics(eval_pred):
-    logits, labels = eval_pred
-    predictions = np.argmax(logits, axis=-1)
+def custom_metrics(y_true, y_pred):
+    count = 0
+    total = 0
+    for elem_true, elem_pred in zip(y_true, y_pred):
+        if elem_true==2: 
+            total += 1
+            if elem_pred == 2: count += 1
 
-    accuracy = 0
-    for idx, pred in enumerate(predictions):
-        if np.array_equal(predictions[idx],labels[idx]): accuracy+=1
-
-    return {'accuracy': accuracy/len(predictions)}
+    return count / total
 
 
 if __name__ == "__main__":
@@ -90,7 +100,7 @@ if __name__ == "__main__":
     model.to(device)
 
     preprocessor = Preprocessor(128, tokenizer)
-    test_dataset = CustomDataset('../data/data/test.csv', preprocessor.get_input_features)
+    test_dataset = CustomDataset('../data/reduced_test_v2.csv', preprocessor.get_input_features)
     
     batch_size = 32
     training_args = TrainingArguments(
