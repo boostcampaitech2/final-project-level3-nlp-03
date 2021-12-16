@@ -1,15 +1,19 @@
 import torch
 import pandas as pd
-from typing import List, Tuple
+from typing import List, Tuple, Optional
 from torch.utils.data import Dataset
 
 class CustomDataset(Dataset):
-    def __init__(self, data_path:str, transform):
+    def __init__(self, transform, data_path:Optional[str]=None, sentence:Optional[str]=None):
         self.data_path = data_path
         self.slot_labels = ["UNK", "PAD", "B", "I"]
         self.transform = transform
 
-        self.load_data()
+        if sentence:
+            self.sentences = [sentence.split()]
+            self.ground_truths = self.sentences
+        if data_path:
+            self.load_data()
 
     def load_data(self):
         df = pd.read_csv(self.data_path)

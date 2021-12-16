@@ -20,16 +20,16 @@ def main():
     with open('config.yaml') as f:
         config = yaml.load(f, Loader=yaml.FullLoader)
 
-    tokenizer = BertTokenizer.from_pretrained(config['tokenizer_name'])
+    tokenizer = AutoTokenizer.from_pretrained(config['tokenizer_name'])
 
     preprocessor = Preprocessor(config['max_len'], tokenizer)
-    train_dataset = CustomDataset(config['train_data_path'], preprocessor.get_input_features)
-    dev_dataset = CustomDataset(config['val_data_path'], preprocessor.get_input_features)
+    train_dataset = CustomDataset(data_path=config['train_data_path'], transform=preprocessor.get_input_features)
+    dev_dataset = CustomDataset(data_path=config['val_data_path'], transform=preprocessor.get_input_features)
     print(len(train_dataset))
 
     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
-    model = BertForTokenClassification.from_pretrained(config['model_name'], num_labels=4)
+    model = AutoModelForTokenClassification.from_pretrained(config['model_name'], num_labels=4)
     model.to(device)
 
     optimizer = torch.optim.Adam(params=model.parameters(), lr=1e-05)
