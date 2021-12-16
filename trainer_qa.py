@@ -21,7 +21,7 @@ class SpacingTrainer(Trainer):
             metric_key_prefix=metric_key_prefix
         )
 
-        if self.post_process_function is None or self.compute_metrics is None:
+        if self.post_process_function is None:
             return output._asdict()
 
         text_prediction = self.post_process_function(

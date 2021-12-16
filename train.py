@@ -1,5 +1,5 @@
 import torch
-from transformers import BertTokenizer, BertForTokenClassification, TrainingArguments, Trainer
+from transformers import AutoTokenizer, AutoModelForTokenClassification, TrainingArguments, Trainer
 from transformers.trainer_utils import get_last_checkpoint
 
 from datasets import load_metric
