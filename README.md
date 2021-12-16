@@ -28,3 +28,26 @@ self.args.output_dir을 지우면 예측값 저장 X
 
 ### KoSpacing 비교 코드
 - inference.py 이후 만들어진 ./results/predictions.json 파일을 이용하여 비교.
+
+
+## 버그 
+id, wrong_sentence, correct_setence 중 correct_sentence에 None을 쓸 시 띄어쓰기 퀄리티가 매우 떨어짐. 
+데이터의 형태는 test_data.csv 참고
+
+datset.py - self.test가 True, False여도 같은 버그가 일어남.
+'''
+if self.test:
+            return {
+                'input_ids': input_ids,
+                'attention_mask': attention_mask,
+                'token_type_ids': token_type_ids,
+            }
+
+        return {
+          'input_ids': input_ids,
+          'attention_mask': attention_mask,
+          'token_type_ids': token_type_ids,
+          # 'slot_labels': slot_labels,
+          'labels': targets
+        }
+'''
