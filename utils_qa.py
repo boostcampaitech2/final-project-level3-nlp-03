@@ -13,6 +13,7 @@ def compute_metrics(eval_pred):
 
     accuracy = 0
     accuracy_aon = 0
+    f1 = 0
     for idx, pred in enumerate(predictions):
         pred_list = [x for x in predictions[idx].tolist() if x!=0]
         label_list = [x for x in labels[idx].tolist() if x!=0]
@@ -20,13 +21,16 @@ def compute_metrics(eval_pred):
         try:
             accuracy += accuracy_score(label_list, pred_list)
             accuracy_aon += (label_list == pred_list)
+            f1 += f1_score(pred_list, label_list, pos_label=2)
         except:
             pass
 
 
     pred_len = len(predictions)
 
-    return {'acc': accuracy/pred_len, 'acc_all_or_none': accuracy_aon/pred_len}
+    return {'acc': accuracy/pred_len, 
+            'acc_binary': accuracy_aon/pred_len, 
+            'f1_score': f1/pred_len}
 
 def post_process_function(
         examples,
