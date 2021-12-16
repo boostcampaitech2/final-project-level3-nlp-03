@@ -10,9 +10,13 @@ def compute_metrics(eval_pred):
     for idx, pred in enumerate(predictions):
         pred_list = [x for x in predictions[idx].tolist() if x!=0]
         label_list = [x for x in labels[idx].tolist() if x!=0]
-        accuracy += accuracy_score(label_list, pred_list)
         
-        accuracy_aon += (label_list == pred_list)
+        try:
+            accuracy += accuracy_score(label_list, pred_list)
+            accuracy_aon += (label_list == pred_list)
+        except:
+            pass
+
 
     pred_len = len(predictions)
 

@@ -9,7 +9,7 @@ from tqdm import tqdm
 
 import os
 import json
-
+import yaml
 
 from preprocessor import Preprocessor
 from dataset import CustomDataset
@@ -73,34 +73,24 @@ def post_process_function(
     return text_predictions
 
 
-def custom_metrics(y_true, y_pred):
-    count = 0
-    total = 0
-    for elem_true, elem_pred in zip(y_true, y_pred):
-        if elem_true==2: 
-            total += 1
-            if elem_pred == 2: count += 1
-
-    return count / total
-
-
 if __name__ == "__main__":
+    with open('config.yaml') as f:
+        config = yaml.load(f, Loader=yaml.FullLoader)
+
     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
     
     # load tokenizer
-    Tokenizer_NAME = "monologg/kobert"
-    tokenizer = BertTokenizer.from_pretrained("monologg/kobert")
+    tokenizer = BertTokenizer.from_pretrained(config['tokenizer_name'])
 
-    model_path = './models'
     model = BertForTokenClassification.from_pretrained(
-        model_path, 
-        from_tf=bool(".ckpt" in model_path),
+        config['model_path'], 
+        from_tf=bool(".ckpt" in config['model_path']),
         num_labels=4
     )
     model.to(device)
 
-    preprocessor = Preprocessor(128, tokenizer)
-    test_dataset = CustomDataset('../data/reduced_test_v2.csv', preprocessor.get_input_features)
+    preprocessor = Preprocessor(config['max_len'], tokenizer)
+    test_dataset = CustomDataset(config['test_data_path'], preprocessor.get_input_features)
     
     batch_size = 32
     training_args = TrainingArguments(
