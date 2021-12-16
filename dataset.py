@@ -4,10 +4,11 @@ from typing import List, Tuple
 from torch.utils.data import Dataset
 
 class CustomDataset(Dataset):
-    def __init__(self, data_path:str, transform):
+    def __init__(self, data_path:str, transform, test=False):
         self.data_path = data_path
         self.slot_labels = ["UNK", "PAD", "B", "I"]
         self.transform = transform
+        self.test = test
 
         self.load_data()
 
@@ -43,6 +44,7 @@ class CustomDataset(Dataset):
 
     def __getitem__(self, idx):
         sentence = "".join(self.sentences[idx])
+
         tags = self.get_tags(self.sentences[idx])
         tags = [self.slot_labels.index(t) for t in tags]
 
@@ -56,6 +58,13 @@ class CustomDataset(Dataset):
             slot_labels,
             targets
         ) = self.transform(sentence, tags, target_tags)
+
+        if self.test:
+            return {
+                'input_ids': input_ids,
+                'attention_mask': attention_mask,
+                'token_type_ids': token_type_ids,
+            }
 
         return {
           'input_ids': input_ids,

@@ -1,6 +1,6 @@
 from transformers import BertTokenizer, BertForTokenClassification, TrainingArguments, Trainer, EvalPrediction
 from datasets import Dataset
-from typing import Tuple, List, Optional, Dict
+from typing import List, Optional, Dict
 
 class SpacingTrainer(Trainer):
     def __init__(self, *args, post_process_function=None, **kwargs):

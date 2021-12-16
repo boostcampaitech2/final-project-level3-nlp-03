@@ -90,7 +90,7 @@ if __name__ == "__main__":
     model.to(device)
 
     preprocessor = Preprocessor(config['max_len'], tokenizer)
-    test_dataset = CustomDataset(config['test_data_path'], preprocessor.get_input_features)
+    test_dataset = CustomDataset(config['test_data_path'], preprocessor.get_input_features, test=True)
     
     batch_size = 32
     training_args = TrainingArguments(
