@@ -35,6 +35,7 @@ id, wrong_sentence, correct_setence 중 correct_sentence에 None을 쓸 시 띄�
 데이터의 형태는 test_data.csv 참고
 
 datset.py - self.test가 True, False여도 같은 버그가 일어남.
+
 '''
 if self.test:
             return {
