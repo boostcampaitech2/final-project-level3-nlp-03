@@ -11,10 +11,13 @@ from torch.utils.data import DataLoader
 from preprocessor import Preprocessor
 from dataset import CustomDataset
 from utils_qa import compute_metrics
+from model import CustomTokenClassification
 
 from typing import Tuple
 
 import yaml
+
+import wandb
 
 def main():
     with open('config.yaml') as f:
@@ -29,29 +32,36 @@ def main():
 
     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
-    model = AutoModelForTokenClassification.from_pretrained(config['model_name'], num_labels=4)
+    # model = AutoModelForTokenClassification.from_pretrained(config['model_name'], num_labels=4)
+    model = CustomTokenClassification.from_pretrained(config['model_name'], num_labels=4)
     model.to(device)
 
     optimizer = torch.optim.Adam(params=model.parameters(), lr=1e-05)
 
+    wandb.init(
+        project='spacing',
+        name='klue-bert-base',
+        entity='dainkim',
+    )
+
     training_args = TrainingArguments(
         output_dir=config['output_dir'],          # output directory
         save_total_limit=5,              # number of total save model.
-        save_steps=1000,                 # model saving step.
-        num_train_epochs=4,              # total number of training epochs
+        save_steps=config['steps'],                 # model saving step.
+        num_train_epochs=config['epochs'],              # total number of training epochs
         learning_rate=5e-5,               # learning_rate
         per_device_train_batch_size=32,  # batch size per device during training
         per_device_eval_batch_size=32,   # batch size for evaluation
-        warmup_steps=1000,                # number of warmup steps for learning rate scheduler
+        warmup_steps=config['steps'],                # number of warmup steps for learning rate scheduler
         weight_decay=0.01,               # strength of weight decay
         logging_dir='./logs',            # directory for storing logs
-        logging_steps=1000,              # log saving step.
+        logging_steps=config['steps'],              # log saving step.
         evaluation_strategy='steps', # evaluation strategy to adopt during training
                                     # `no`: No evaluation during training.
                                     # `steps`: Evaluate every `eval_steps`.
                                     # `epoch`: Evaluate every end of epoch.
-        eval_steps = 1000,            # evaluation step.
-        load_best_model_at_end = True,
+        eval_steps = config['steps'],            # evaluation step.
+        load_best_model_at_end = True,   
     )
 
     trainer = Trainer(
