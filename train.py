@@ -20,6 +20,8 @@ import yaml
 import wandb
 
 def main():
+    torch.manual_seed(42)
+
     with open('config.yaml') as f:
         config = yaml.load(f, Loader=yaml.FullLoader)
 
@@ -33,14 +35,14 @@ def main():
     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
     # model = AutoModelForTokenClassification.from_pretrained(config['model_name'], num_labels=4)
-    model = CustomTokenClassification.from_pretrained(config['model_name'], num_labels=4)
+    model = CustomTokenClassification(config['model_name'], num_labels=4)
     model.to(device)
 
     optimizer = torch.optim.Adam(params=model.parameters(), lr=1e-05)
 
     wandb.init(
         project='spacing',
-        name='klue-bert-base',
+        name='monologg/kobert + bilstm',
         entity='dainkim',
     )
 
