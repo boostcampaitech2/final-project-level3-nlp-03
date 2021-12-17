@@ -1,12 +1,22 @@
+import torch
 from torch import nn
-from transformers import AutoModelForTokenClassification
+from torch.nn import CrossEntropyLoss
+from transformers import AutoModel, AutoConfig
 from transformers.modeling_outputs import TokenClassifierOutput
 
-class CustomTokenClassification(AutoModelForTokenClassification):
-    def __init__(self, config):
-        super().__init__(config)
-
-        self.lstm = nn.lstm(config.hidden_size, config.hidden_size)
+class CustomTokenClassification(nn.Module):
+    def __init__(self, model_name, num_labels):
+        super().__init__()
+        self.num_labels = num_labels
+        self.config = AutoConfig.from_pretrained(model_name)
+        
+        classifier_dropout = (
+            self.config.classifier_dropout if self.config.classifier_dropout is not None else self.config.hidden_dropout_prob
+        )
+        self.bert = AutoModel.from_pretrained(model_name, config=self.config)
+        self.lstm = nn.LSTM(self.config.hidden_size, self.config.hidden_size // 2, bidirectional=True, batch_first=True)
+        self.dropout=nn.Dropout(classifier_dropout)
+        self.classifier=nn.Linear(self.config.hidden_size, self.num_labels)
 
     def forward(
         self,
@@ -40,11 +50,10 @@ class CustomTokenClassification(AutoModelForTokenClassification):
             return_dict=return_dict,
         )
 
-        sequence_output = outputs[0]
-
-        sequence_output = self.dropout(sequence_output)
-        lstm_output = self.lstm(sequence_output)
-        logits = self.classifier(lstm_output)
+        output = outputs[0]
+        hidden, (last_hidden, last_cell) = self.lstm(output)
+        sequence_output = self.dropout(hidden)        
+        logits = self.classifier(sequence_output)
 
         loss = None
         if labels is not None:
@@ -71,7 +80,7 @@ class CustomTokenClassification(AutoModelForTokenClassification):
             attentions=outputs.attentions,
         )
 
-class CustomTokenClassificationCRF(AutoModelForTokenClassification):
+class CustomTokenClassificationCRF(AutoModel):
     def __init__(self, config):
         super().__init__(config)
 
