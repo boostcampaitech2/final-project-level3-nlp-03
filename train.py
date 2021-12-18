@@ -11,7 +11,7 @@ from torch.utils.data import DataLoader
 from preprocessor import Preprocessor
 from dataset import CustomDataset
 from utils_qa import compute_metrics
-from model import CustomTokenClassification
+from model import CustomTokenClassification, CustomTokenClassificationCRF
 
 from typing import Tuple
 
@@ -35,14 +35,16 @@ def main():
     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
     # model = AutoModelForTokenClassification.from_pretrained(config['model_name'], num_labels=4)
-    model = CustomTokenClassification(config['model_name'], num_labels=4)
+    model = CustomTokenClassificationCRF(config['model_name'], num_labels=4)
+
+    print(model)
     model.to(device)
 
     optimizer = torch.optim.Adam(params=model.parameters(), lr=1e-05)
 
     wandb.init(
         project='spacing',
-        name='monologg/kobert + bilstm',
+        name='monologg/kobert + bilstm + crf',
         entity='dainkim',
     )
 
