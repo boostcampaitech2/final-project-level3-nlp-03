@@ -9,7 +9,7 @@ import inference as inf
 
 st.image("logo.png")
 
-st.write("'Between Spaces'는 Bert 기반 한국어 띄어쓰기 모델입니다. 이러이러 저러저러 텍스트 텍스트 설명 설명.")
+st.write("'Between Spaces'는 Bert 기반 한국어 띄어쓰기 모델입니다.")
 st.write("")
 
 text_input = st.text_input("띄어쓰기 할 텍스트를 입력해주세요. (256자 제한)", max_chars=256)
