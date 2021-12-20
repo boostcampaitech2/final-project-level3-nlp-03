@@ -1,1 +1,5 @@
-# final-project-level3-nlp-03
+# code for web
+
+- inference.py 수정
+- dataset.py 수정
+- web_test.py 추가
