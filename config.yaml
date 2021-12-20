@@ -1,0 +1,12 @@
+tokenizer_name: 'monologg/kobert'
+model_name: 'monologg/kobert'
+train_data_path: '../data/reduced_train.csv'
+val_data_path: '../data/reduced_val.csv'
+test_data_path: '../data/reduced_test.csv'
+model_path: './models'
+output_dir: './results'
+
+# training arguments
+output_dir: './results'
+max_len: 256
+epoch: 5
