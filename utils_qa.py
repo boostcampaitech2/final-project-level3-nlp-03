@@ -14,17 +14,24 @@ def compute_metrics(eval_pred):
     accuracy = 0
     accuracy_aon = 0
     f1 = 0
+    lc = 0
+    lc_aon = 0
+    lc_f1=0
     for idx, pred in enumerate(predictions):
         pred_list = [x for x in predictions[idx].tolist() if x!=0]
         label_list = [x for x in labels[idx].tolist() if x!=0]
+        cut_pred = pred_list[:len(label_list)]
         
         try:
+            lc += accuracy_score(label_list, cut_pred)
+            lc_aon += (label_list == cut_pred)
+            lc_f1 += f1_score(label_list, cut_pred, pos_label=2)
             accuracy += accuracy_score(label_list, pred_list)
             accuracy_aon += (label_list == pred_list)
             f1 += f1_score(pred_list, label_list, pos_label=2)
+            
         except:
             pass
-
 
     pred_len = len(predictions)
 
@@ -48,6 +55,7 @@ def post_process_function(
         pred = pred[1:len(original)+1]
         
         pred_text = []
+        pred
         for idx, text in enumerate(original):
             if idx>=len(pred): continue
             if pred[idx]==2:
@@ -55,7 +63,7 @@ def post_process_function(
             else:
                 pred_text += text
 
-        text_predictions.append("".join(pred_text[1:]))
+        text_predictions.append("".join(pred_text))
 
     if output_dir is not None:
         assert os.path.isdir(output_dir), f"{output_dir} is not a directory."

@@ -64,7 +64,7 @@ class CustomDataset(Dataset):
         return {
           'input_ids': input_ids,
           'attention_mask': attention_mask,
-          'token_type_ids': token_type_ids,
+          'token_type_ids': token_type_ids, # distilbert 사용 할 때 주석 처리
           # 'slot_labels': slot_labels,
           'labels': targets
         }
