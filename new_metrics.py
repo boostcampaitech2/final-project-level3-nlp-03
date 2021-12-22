@@ -5,6 +5,7 @@ import json
 import argparse
 import pandas as pd
 from sklearn.metrics import accuracy_score, f1_score
+import jiwer
 
 slot_labels = ["UNK", "PAD", "B", "I"]
 
@@ -76,6 +77,7 @@ def compute_metrics(df):
     f1 = 0
     pred_len = len(df)
     cnt = 0
+    WER = 0
 
     for idx, row in df.iterrows():
         pred_list = row['pred_labels']
@@ -85,14 +87,16 @@ def compute_metrics(df):
             accuracy += accuracy_score(label_list, pred_list)
             accuracy_aon += (label_list == pred_list)
             f1 += f1_score(pred_list, label_list, pos_label=2)
-
+            WER += jiwer.wer(label_list, pred_list)
         except:
             cnt+=1
             
     return {'acc': accuracy/pred_len, 
             'acc_binary': accuracy_aon/pred_len, 
             'f1_score': f1/pred_len,
-            'cnt':cnt}
+            'cnt': cnt,
+            'WER': WER/pred_len  # average of WER
+            }
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
