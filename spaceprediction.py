@@ -1,12 +1,12 @@
-from transformers import BertForTokenClassification, BertTokenizer, TrainingArguments
+from transformers import AutoModelForTokenClassification, AutoTokenizer, TrainingArguments
 
 from preprocessor import Preprocessor
 from dataset import CustomDataset
 from trainer_qa import SpacingTrainer
 from utils_qa import post_process_function
 
-tokenizer = BertTokenizer.from_pretrained('monologg/kobert')
-model = BertForTokenClassification.from_pretrained(
+tokenizer = AutoTokenizer.from_pretrained('monologg/kobert')
+model = AutoModeltForTokenClassification.from_pretrained(
     './models_baseline', 
     from_tf=bool(".ckpt" in './models'),
     num_labels=4
@@ -22,9 +22,6 @@ trainer = SpacingTrainer(
     train_dataset=None,         
     post_process_function=post_process_function
 )
-
-
-import time
 
 class BetweenSpace:
     def __init__(self, max_len=256):
