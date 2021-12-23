@@ -3,7 +3,7 @@ model_name: 'monologg/kobert'
 train_data_path: '../data/train.csv'
 val_data_path: '../data/val.csv'
 test_data_path: '../data/test.csv'
-model_path: './models
+model_path: './models'
 output_dir: './results'
 
 # training arguments
