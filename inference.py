@@ -15,7 +15,7 @@ from preprocessor import Preprocessor
 from dataset import CustomDataset
 from trainer_qa import SpacingTrainer
 from utils_qa import compute_metrics, post_process_function
-
+from model import CustomTokenClassification
 
 if __name__ == "__main__":
     with open('config.yaml') as f:
@@ -31,12 +31,15 @@ if __name__ == "__main__":
         from_tf=bool(".ckpt" in config['model_path']),
         num_labels=4
     )
+
+    # model = CustomTokenClassification(config['model_name'], num_labels=4)
+    # model.load_state_dict(torch.load(os.path.join(config['model_path'], 'model.pt')))
+
     model.to(device)
 
     preprocessor = Preprocessor(config['max_len'], tokenizer)
     test_dataset = CustomDataset(data_path=config['test_data_path'], transform=preprocessor.get_input_features)
     
-    batch_size = 32
     training_args = TrainingArguments(
         output_dir='./results'
     )

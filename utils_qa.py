@@ -6,6 +6,7 @@ from transformers import TrainingArguments
 import os
 import json
 from tqdm import tqdm
+import jiwer
 
 def compute_metrics(eval_pred):
     logits, labels = eval_pred
@@ -14,30 +15,26 @@ def compute_metrics(eval_pred):
     accuracy = 0
     accuracy_aon = 0
     f1 = 0
-    lc = 0
-    lc_aon = 0
-    lc_f1=0
+    count = 0
     for idx, pred in enumerate(predictions):
         pred_list = [x for x in predictions[idx].tolist() if x!=0]
         label_list = [x for x in labels[idx].tolist() if x!=0]
         cut_pred = pred_list[:len(label_list)]
         
         try:
-            lc += accuracy_score(label_list, cut_pred)
-            lc_aon += (label_list == cut_pred)
-            lc_f1 += f1_score(label_list, cut_pred, pos_label=2)
             accuracy += accuracy_score(label_list, pred_list)
             accuracy_aon += (label_list == pred_list)
             f1 += f1_score(pred_list, label_list, pos_label=2)
             
         except:
-            pass
+            count+=1
 
     pred_len = len(predictions)
 
     return {'acc': accuracy/pred_len, 
             'acc_binary': accuracy_aon/pred_len, 
-            'f1_score': f1/pred_len}
+            'f1_score': f1/pred_len,
+            'cnt':count}
 
 def post_process_function(
         examples,

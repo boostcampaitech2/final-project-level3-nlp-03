@@ -1,13 +1,14 @@
 tokenizer_name: 'monologg/kobert'
 model_name: 'monologg/kobert'
-train_data_path: '../data/reduced_train_v2.csv'
-val_data_path: '../data/reduced_val_v2.csv'
-test_data_path: '../data/reduced_test_v2.csv'
-model_path: './models'
+train_data_path: '../data/train.csv'
+val_data_path: '../data/val.csv'
+test_data_path: '../data/test.csv'
+model_path: './models
 output_dir: './results'
 
 # training arguments
 output_dir: './results'
 max_len: 256
 epochs: 5
-steps: 500
+steps: 1000
+batch_size: 32

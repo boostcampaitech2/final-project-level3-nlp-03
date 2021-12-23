@@ -34,8 +34,8 @@ def main():
 
     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
-    # model = AutoModelForTokenClassification.from_pretrained(config['model_name'], num_labels=4)
-    model = CustomTokenClassification(config['model_name'], num_labels=4)
+    model = AutoModelForTokenClassification.from_pretrained(config['model_name'], num_labels=4)
+    # model = CustomTokenClassification(config['model_name'], num_labels=4)
     model.to(device)
 
     optimizer = torch.optim.Adam(params=model.parameters(), lr=1e-05)
@@ -48,12 +48,12 @@ def main():
 
     training_args = TrainingArguments(
         output_dir=config['output_dir'],          # output directory
-        save_total_limit=5,              # number of total save model.
+        save_total_limit=10,              # number of total save model.
         save_steps=config['steps'],                 # model saving step.
         num_train_epochs=config['epochs'],              # total number of training epochs
         learning_rate=5e-5,               # learning_rate
-        per_device_train_batch_size=32,  # batch size per device during training
-        per_device_eval_batch_size=32,   # batch size for evaluation
+        per_device_train_batch_size=config['batch_size'],  # batch size per device during training
+        per_device_eval_batch_size=config['batch_size'],   # batch size for evaluation
         warmup_steps=config['steps'],                # number of warmup steps for learning rate scheduler
         weight_decay=0.01,               # strength of weight decay
         logging_dir='./logs',            # directory for storing logs
@@ -85,7 +85,8 @@ def main():
 
     trainer.train(resume_from_checkpoint=checkpoint)
     trainer.evaluate()
-    trainer.save_model('./models')
+    trainer.save_model(config['model_path'])
+    torch.save(model.state_dict(), os.path.join(config['model_path'], 'model.pt'))
     
 if __name__ == "__main__":
     main()

@@ -10,7 +10,7 @@ class Preprocessor:
 
     def get_input_features(
         self, sentence: List[str], tags: List[str], target_tags: List[str]
-    ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
+    ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
         """문장과 띄어쓰기 tagging에 대해 feature로 변환한다.
 
         Args:
@@ -19,10 +19,9 @@ class Preprocessor:
 
         Returns:
             feature를 리턴한다.
-            input_ids, attention_mask, token_type_ids, slot_labels
+            input_ids, attention_mask, token_type_ids, targets
         """
         input_tokens = []
-        slot_labels = []
         targets = []
 
         for word, tag, target_tag in zip(sentence, tags, target_tags):
@@ -35,23 +34,19 @@ class Preprocessor:
 
             for i, _ in enumerate(tokens):
                 if i == 0:
-                    slot_labels.extend([tag])
                     targets.extend([target_tag])
                 else:
-                    slot_labels.extend([self.pad_token_id])
                     targets.extend([self.pad_token_id])
 
         # 2. max_len보다 길이가 길면 뒤에 자르기
         if len(input_tokens) > self.max_len - 2:
             input_tokens = input_tokens[: self.max_len - 2]
-            slot_labels = slot_labels[: self.max_len - 2]
             targets = targets[: self.max_len - 2]
 
         # cls, sep 추가
         input_tokens = (
             [self.tokenizer.cls_token] + input_tokens + [self.tokenizer.sep_token]
         )
-        slot_labels = [self.pad_token_id] + slot_labels + [self.pad_token_id]
         targets = [self.pad_token_id] + targets + [self.pad_token_id]
 
         # token을 id로 변환
@@ -63,7 +58,6 @@ class Preprocessor:
         # padding
         pad_len = self.max_len - len(input_tokens)
         input_ids = input_ids + ([self.tokenizer.pad_token_id] * pad_len)
-        slot_labels = slot_labels + ([self.pad_token_id] * pad_len)
         targets = targets + ([self.pad_token_id] * pad_len)
         attention_mask = attention_mask + ([0] * pad_len)
         token_type_ids = token_type_ids + ([0] * pad_len)
@@ -71,7 +65,6 @@ class Preprocessor:
         input_ids = torch.tensor(input_ids, dtype=torch.long)
         attention_mask = torch.tensor(attention_mask, dtype=torch.long)
         token_type_ids = torch.tensor(token_type_ids, dtype=torch.long)
-        slot_labels = torch.tensor(slot_labels, dtype=torch.long)
         targets = torch.tensor(targets, dtype=torch.long)
 
-        return input_ids, attention_mask, token_type_ids, slot_labels, targets
+        return input_ids, attention_mask, token_type_ids, targets
