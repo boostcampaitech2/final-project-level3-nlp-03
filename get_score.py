@@ -1,4 +1,5 @@
 # split 된 test 데이터를 원 데이터와 비교하는 코드
+# wer 같이 계산
 
 import os
 import json
@@ -87,7 +88,7 @@ def compute_metrics(df):
             accuracy += accuracy_score(label_list, pred_list)
             accuracy_aon += (label_list == pred_list)
             f1 += f1_score(pred_list, label_list, pos_label=2)
-            WER += jiwer.wer(label_list, pred_list)
+            WER += jiwer.wer(row['correct_sentence'], row['predicted'])
         except:
             cnt+=1
             
