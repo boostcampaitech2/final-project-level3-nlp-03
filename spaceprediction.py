@@ -7,7 +7,7 @@ from utils_qa import post_process_function
 
 tokenizer = BertTokenizer.from_pretrained('monologg/kobert')
 model = BertForTokenClassification.from_pretrained(
-    './models', 
+    './models_baseline', 
     from_tf=bool(".ckpt" in './models'),
     num_labels=4
 )
@@ -26,7 +26,7 @@ trainer = SpacingTrainer(
 
 import time
 
-class Spacing:
+class BetweenSpace:
     def __init__(self, max_len=256):
         start = time.time()
         self.tokenizer=tokenizer
@@ -45,27 +45,32 @@ class Spacing:
 
         return prediction['text_prediction'][0]
 
+
     def __call__(self, sent:str) -> str:
-        pred_sent = self.predict_sentence(sent)
+        sents = sent.split(',')        
+
+        new_sent = [sents[0]]
+        idx = 0
+        for sent in sents[1:]:
+            if len(new_sent[idx]+sent)<100:
+                new_sent[idx] = new_sent[idx]+', '+sent
+            else:
+                new_sent.append(sent)
+                idx += 1
+
+        pred_sent = ", ".join([self.predict_sentence(sent.strip()) for sent in new_sent])
 
         return pred_sent
 
+    def split_sentence(self, full_sent:str):
+        split_sent = full_sent.strip().split('.')
+        print(split_sent)
+        return ". ".join(self(sent.strip()) for sent in split_sent if sent!='').strip()+"."
+
 
 if __name__ == "__main__":
-    spacing = Spacing()
-
-    start = time.time()
-    print(spacing("아버지가방에들어가신다."))
-    print("time :", time.time() - start)
-
-    start = time.time()
-    print(spacing("또 국 가 정보 원 장 비 서실장 출신 인 윤 아무 개( 5 7) 씨 가대 학 동 창 인 최 중경 전 지식 경제 부 장관 한 테 ‘ ㅎ 사 가 부탁 한 인 물 을 한국 전 력 자 회 사 고위 직 으 로 임 명해달 라 ’ 고청탁 해 실 제임 명 된 것 을밝혀내 고 원 전 브로커오 씨 로부터“ ㅎ사 로 부 터 2 억 8 0 0 0 만 원 을 받 아윤 씨 한테전달 했 다” 는 진술 을 확보 했 지만,최 전 장관 은 무 혐 의처 분 했 다 ."))
-    print("time :", time.time() - start)
-
-    start = time.time()
-    print(spacing("전 람 회 , 카니발( 김 동 률 이 적 ), 베 란 다 프 로젝 트 ( 김 동 률 이상순 )를 거 친김 동 률의 여섯번 째 솔로 앨 범 ‘ 동행 ’(사진 ) 이 1일 발 매 된 이 후 돌 풍 을멈 추 지 않 는 다."))
-    print("time :", time.time() - start)
-
-    start = time.time()
-    print(spacing("며칠 전에 는뉴 이 스트( 황 )민현 이형 이'잘 될수있 을거 야' 라 는말을해주면 서부담감을떨칠 수있도록해줬 다 고했다."))
-    print("time :", time.time() - start)
+    spacing = BetweenSpace()
+    
+    print(spacing("철수와 영희는 감자,당근,양파,고춧가루,닭다리살,설탕과 소금을 사서 집으로 갔다."))
+    print(spacing.split_sentence("동해물과백두산이 마르고닳도록 하느님이 보우하사 우리나라 만세. 무궁화삼천리화려강산 대한 사람 대한으로 길이 보전하세."))
+    
